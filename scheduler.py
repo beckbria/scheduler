@@ -48,16 +48,34 @@ class Schedule:
     def Require(self, name, puzzle):
         self.solver.add(self.scheduled[puzzle][name])
 
+    def MinTotalPuzzlesForAll(self, min):
+        for n in self.names:
+            self.solver.add(self.__countStaffedPuzzles(n, self.allPuzzles) >= min)
+
     def PrintSchedule(self):
         print(self.solver.check())
         m = self.solver.model()
+
+        # Print the puzzle schedule
         for p in self.allPuzzles:
-            print(p + ": ", end='')
+            print(p + ": ", end="")
             staff = []
             for n in self.names:
                 if m[self.scheduled[p][n]]:
                     staff.append(n)
             print(*staff, sep=', ')
+        print("")
+
+        # Print the staffer schedule
+        for n in self.names:
+            print(n + ": ", end="")
+            puzz = []
+            for p in self.allPuzzles:
+                if m[self.scheduled[p][n]]:
+                    puzz.append(p)
+            print(*puzz, sep=', ',)
+
+
 
 # Hypothetical Schedule:
 # Day 1
@@ -83,6 +101,8 @@ class Schedule:
 #                                                                                   PAPA        PAPA        PAPA        PAPA
 
 s = Schedule()
+
+s.MinTotalPuzzlesForAll(1)
 
 s.StaffCount("ALPHA", 3)
 s.StaffCount("BRAVO", 2)
